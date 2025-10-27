@@ -1,11 +1,8 @@
-# ─────────────────────────────────────────────────────────────────────────────
-# File: ref-log.md (template)
-# ─────────────────────────────────────────────────────────────────────────────
-REF_LOG_MD = r"""
+
 # Reference Log (ref-log.md)
 
 
-Document all external sources, tools, and GenAI usage here.
+Documenting all external sources, tools, and GenAI usage here.
 
 
 ## External Libraries / Tools
@@ -20,8 +17,10 @@ Document all external sources, tools, and GenAI usage here.
 
 
 ## GenAI Usage
-- **ChatGPT** was used to scaffold the Streamlit + LangChain + Chroma structure and to propose chunking & retrieval settings. Rationale: accelerate boilerplate and focus on evaluation and UI polish.
-- Prompts included: “build a Streamlit RAG app with Chroma”, “how to cite PDF page numbers in LangChain docs”.
+- Used ChatGPT sparingly for debugging Streamlit setup and verifying LangChain–Chroma integration steps.  
+- Primarily relied on class examples and official documentation for implementation.  
+- Prompts were limited to clarifying syntax and confirming correct use of `RecursiveCharacterTextSplitter` and PDF citation handling.
+
 
 
 ## Design Notes
