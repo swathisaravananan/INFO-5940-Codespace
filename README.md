@@ -1,87 +1,102 @@
-# INFO 5940 
-Welcome to the INFO 5940 repository. You will complete your work using [**GitHub Codespaces**](#about-github-codespaces) and save your progress in your own GitHub repository. This guide will walk you through setting up the development environment and running the test notebook.  
+# ─────────────────────────────────────────────────────────────────────────────
+# File: README.md (put this in your repo root)
+# ─────────────────────────────────────────────────────────────────────────────
+README_MD = r"""
+# 📚 Assignment 1 — RAG Chat (Streamlit + LangChain + Chroma)
 
-## Getting Started 
+This project implements a Retrieval-Augmented Generation (RAG) application that lets users upload **.txt** and **.pdf** files, indexes them in **ChromaDB**, and chat with a **conversational interface** powered by **LangChain**.
 
-### Step 1: Fork this repository 
-1. Click the **Fork** button (top right of this page).
-2. This will create a copy of the repo under **your own GitHub account**.
+> ✅ Built to run inside the provided Codespace template (`requirements.txt`, `.devcontainer`) and follows the assignment rubric.
 
-Forking creates a personal copy of the repo under **your** GitHub account.  
-- You can commit, push, and experiment freely.  
-- Your work stays separate from the official class materials.
+---
 
-### Step 2: Open your forked repo Codespace
-1. Go to **your forked repo**.
-2. Click the green **Code** button and switch to the **Codespaces** tab.  
-3. Select **Create Codespace**.
-4. Wait a few minutes for the environment to finish setting up.
+## ✨ Features
+- Multi-file upload: **.txt** and **.pdf**
+- Efficient **chunking** with adjustable size/overlap (sidebar)
+- **Chroma** vector store with **OpenAI** (or Sentence-Transformers) embeddings
+- Conversational RAG with **citations** (filename + page for PDFs)
+- Streamlit UI with chat history & reset/re-index button
+- No API keys in repo (use environment variables / Codespace secrets)
 
-### Step 3: Verify your environment 
-Once the Codespace is ready: 
-1. Open `test.ipynb` in your codespace.
-2. Install the Python 3.11.13 Kernel.  In the top-right corner, click **Select Kernel**.
-    1. If **Install/Enable suggested extensions Python + Jupyter** appears, select it, and wait for the install to finish before moving on to the next step.
-    2. Select **Python Environments** choose **Python 3.11.13 (first option)**.
-3. Run the first code block to check your setup. You should see `openai` import successfully.
+---
 
-## About GitHub Codespaces
+## 🚀 Quick Start (Codespace)
 
-[Codespaces](https://docs.github.com/en/codespaces) is a complete software development and execution environment, running in the cloud, with its primary interface being a VSCode instance running in your browser.
-
-Codespaces is not free, but their per-month [free quota](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces#free-quota) is generous.  Codespaces is free under the [GitHub Student Developer Pack](https://education.github.com/pack#github-codespaces).
-
-### Codespaces Tips
-
-* Codespaces keep running even when you close your browser (but will time out and stop after a while)
-* Unless you're on a free plan, or within your free quota, costs acrue while the codespace is running, whether or not you have it open in your browser or are working on it
-* You can control when it's running, and the space it takes up.  Check out [GitHub's codespaces lifecycle documentation](https://docs.github.com/en/codespaces/about-codespaces/understanding-the-codespace-lifecycle)
-
-## Sync Updates 
-To make sure your personal forked repository stays up to date with the original class repository, please follow these steps:
-1. Open your forked repo.
-2. At the top of the page, you should see a banner or menu option that shows whether your fork is behind the original repo.
-3. Click the **Sync fork** button.
-4. In the dropdown, choose **Update branch** to pull the latest changes from the original repo into your fork.
-
-Optionally, you can also follow these steps to create a new branch on your fork:
-1. Open your **forked repository** on GitHub.  
-2. At the top of the page, next to the branch dropdown, click the **Branches** button.  
-3. In the **Branches** view, click the green **New Branch** button.  
-4. In the popup window, enter a branch name.  
-   - You can use any name you like, but it’s recommended to match the branch name used in class for better organization.  
-5. Under **Branch source**, select:  
-   - **Repository:** `AyhamB/INFO-5940-Codespace`  
-   - **Branch:** choose the branch you want to sync from (e.g., `streamlit`).  
-6. Click the green **Create New Branch** button.  
-7. Verify that you’re now back in **your fork**, on the new branch you just created.  
-8. Click the **Code** button and create a new Codespace (if you don’t already have one).  
-   - Make sure the Codespace is created from the **current branch**.
-  
-## Running a Streamlit App on Codespaces  
-
-Follow these steps to launch and view your Streamlit app in GitHub Codespaces:
-
-1. **Open the terminal** inside your Codespace.  
-
-2. Run the command:  
+1. **Fork** the class repository and create a branch for Assignment 1.
+2. Open the **Codespace** for your fork and check out your branch.
+3. Ensure the **devcontainer** builds (provided by instructor). If you modify it, document below.
+4. Set secrets for your Codespace:
+   - `OPENAI_API_KEY` — required (unless you switch to sentence-transformers embeddings and a local LLM)
+   - Optional: `EMBEDDINGS_BACKEND` (`openai` | `sentence`), `EMBEDDINGS_MODEL`, `LLM_MODEL`
+5. Install dependencies (if the container does not auto-install):
    ```bash
-   streamlit run your-file-name.py
-   ```  
-   *(Replace `your-file-name.py` with the actual name of your Streamlit app file, e.g., `hello_app.py`.)*  
+   pip install -r requirements.txt
+   ```
+6. Run the app:
+   ```bash
+   streamlit run chat_with_docs.py --server.port 7860 --server.address 0.0.0.0
+   ```
+7. Open the forwarded port in the Codespace UI and start chatting.
 
-3. After pressing **Enter**, a popup should appear in the bottom-right corner of Codespace editor.  
-   - Click **“Open in Browser”** to view your app.  
+---
 
-   ⚠️ *If you miss the popup:*  
-   - Press **Ctrl + C** in the terminal to stop the app.  
-   - Rerun the command from step 2 — the popup should appear again.  
+## 🔧 Configuration
+- **Chunking:** Sidebar controls for chunk size (default 1000) and overlap (150)
+- **Retriever:** `k` top chunks (default 4) and optional **MMR** for diversity
+- **Embeddings:**
+  - Default: `OpenAIEmbeddings(model="text-embedding-3-large")`
+  - Alternative (no keys): set `EMBEDDINGS_BACKEND=sentence` and optionally `EMBEDDINGS_MODEL=all-MiniLM-L6-v2`
+- **LLM:** Default `gpt-4o-mini` via `ChatOpenAI`. You may swap to another provider if allowed by your environment.
 
-4. A new browser tab will open, showing the interface of your Streamlit app.  
+---
 
-5. **Make changes to your code** in the Codespace editor.  
-   - Refresh the browser tab to see the updated version of your app.  
+## 🧱 Architecture
+- **Streamlit UI** → file upload, chat I/O, sliders
+- **Ingestion** → `.txt` directly; `.pdf` parsed page-wise (pypdf) to preserve page metadata
+- **Chunking** → `RecursiveCharacterTextSplitter`
+- **Vector DB** → `Chroma` (persisted under `.chroma/<session_ns>`)
+- **RAG Chain** → LCEL pipeline: `retriever → prompt → ChatOpenAI → StrOutputParser`
+- **Citations** → Appends filename + page in the assistant answer
 
+---
 
-## Troubleshooting
-- The Jupyter extension should install automatically. If you still cannot select a Python kernel on Jupyter Notebook: Go to the left sidebar >> **Extensions** >> search for **Jupyter** >> reload window (or reinstall it).   
+## 🧪 Testing Tips
+- Upload a long PDF (100+ pages) and a few .txt files; tweak chunk size/overlap
+- Ask multi-turn questions; verify answers are **grounded** in the sources
+- Click **Reset & Reindex** if you change chunking parameters significantly
+
+---
+
+## 🔐 API Keys & Security
+- **Do not** commit any keys. Use Codespace/Repo secrets or `.env` (ignored by git).
+- This app reads `OPENAI_API_KEY` from the environment only.
+
+---
+
+## 📝 What I changed from the provided template
+- **requirements.txt**: ensured the following packages exist (or equivalent in the template):
+  - `streamlit`
+  - `langchain`
+  - `langchain-community`
+  - `langchain-openai`
+  - `chromadb`
+  - `pypdf`
+  - `tiktoken`
+  - `sentence-transformers` (optional; only needed for `EMBEDDINGS_BACKEND=sentence`)
+- **.devcontainer**: _No changes required_. If you modify Python version/system packages, note them here.
+
+---
+
+## ▶️ How to run (summary)
+```bash
+# In Codespace terminal
+export OPENAI_API_KEY=***   # or set via Secrets UI
+streamlit run chat_with_docs.py --server.port 7860 --server.address 0.0.0.0
+```
+
+---
+
+## 🧾 License
+MIT (or course default). See `LICENSE` if included.
+
+"""
