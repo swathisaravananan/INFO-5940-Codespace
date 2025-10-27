@@ -13,7 +13,11 @@ Documenting all external sources, tools, and GenAI usage here.
 
 
 ## Articles / Tutorials
-- (Add any blog posts or examples you consulted)
+- Reviewed official LangChain documentation for RAG workflows: https://python.langchain.com/
+- Consulted Streamlit docs for file upload and chat input components: https://docs.streamlit.io/
+- Referenced ChromaDB quickstart guide for local vector store setup: https://docs.trychroma.com/getting-started
+- Followed in-class INFO 5940 examples provided by the teaching team.
+
 
 
 ## GenAI Usage
