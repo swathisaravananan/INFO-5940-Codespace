@@ -1,7 +1,3 @@
-# ─────────────────────────────────────────────────────────────────────────────
-# File: README.md (put this in your repo root)
-# ─────────────────────────────────────────────────────────────────────────────
-README_MD = r"""
 # 📚 Assignment 1 — RAG Chat (Streamlit + LangChain + Chroma)
 
 This project implements a Retrieval-Augmented Generation (RAG) application that lets users upload **.txt** and **.pdf** files, indexes them in **ChromaDB**, and chat with a **conversational interface** powered by **LangChain**.
