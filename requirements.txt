@@ -18,3 +18,5 @@ openpyxl
 beautifulsoup4
 pyarrow
 litellm
+pypdf
+chromadb
