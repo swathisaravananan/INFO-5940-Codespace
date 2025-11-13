@@ -19,14 +19,25 @@ from typing import Callable, Dict, List, Optional, Any
 import streamlit as st
 from dotenv import load_dotenv
 from tavily import TavilyClient
+from pathlib import Path
+load_dotenv(Path(__file__).resolve().parent / ".env")
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Environment & Globals
 # ──────────────────────────────────────────────────────────────────────────────
+7
+# always load the .env from the root Codespace
 
-load_dotenv()  # Loads variables from a local .env if present
-os.environ.setdefault("OPENAI_LOG", "error")
-os.environ.setdefault("OPENAI_TRACING", "false")
+
+# Ensure Streamlit subprocess inherits values
+
+
+
+
+
+  # Loads variables from a local .env if present
+
 
 # Tool call logger: the UI sets this per request. The tool checks it and logs.
 # Using a simple global makes this easy to teach and reason about.
@@ -123,20 +134,107 @@ def internet_search(query: str) -> str:
 # Agents
 # ──────────────────────────────────────────────────────────────────────────────
 
+
+
+
 # BEGIN SOLUTION
 REVIEWER_INSTRUCTIONS = """
+You are the Reviewer Agent. Your job is to VALIDATE and IMPROVE the Planner's itinerary
+using live fact-checking with the provided internet_search tool. Be precise and surgical.
 
+OBJECTIVES
+1) Feasibility checks (MANDATORY with sources):
+   - Opening days/hours for headline venues
+   - Ticket prices/availability (adult std.; note timed-entry/reservations)
+   - Travel time and mode between locations; intercity routes/frequency
+   - Seasonal/weekday exceptions and closures
+2) Conflict detection:
+   - Closed venues, unrealistic timing, overpacked days (>12h active time),
+     tight transfers (<20–30 min buffers), geographically inefficient routing
+3) Corrections:
+   - Propose crisp edits as a numbered “Delta List” with reasons and sources
+   - Propagate changes that affect budgets/timing to later items
+
+TOOL USE (REQUIRED)
+- Use internet_search for every CRITICAL item (major museums/attractions,
+  intercity legs, long transfers, timed-entry places).
+- Prefer OFFICIAL sources (operator/museum/rail/airport/city sites) over blogs.
+- If info is ambiguous/seasonal, state uncertainty and give a conservative rec.
+
+OUTPUT FORMAT (Markdown ONLY, no extra commentary)
+- **Validation Findings**
+  - Group by Day. For each checked item: “Item — ✅/⚠️ — short note; Source: <title> (<url>)”
+- **Delta List (edits to apply)**
+  1. [Day X – Item]: <Exact change to line> — Reason (<source title>, <url>)
+  2. ...
+- **Revised Itinerary (only changed parts)**
+  - Reprint ONLY the exact lines you changed, preserving the Planner’s style.
+- **Budget & Timing Adjustments**
+  - Net change per day and trip (minutes and $), and brief rationale.
+
+POLICIES
+- Be concise and specific (edit lines, not vague advice).
+- If a claim cannot be verified, mark it “unverified” and suggest a safer alternative.
+- Do NOT reveal chain-of-thought. Present conclusions with citations only.
 """
 
 PLANNER_INSTRUCTIONS = """
+You are the Planner Agent. Turn a vague travel prompt into a concrete, readable,
+day-by-day itinerary WITHOUT using the internet. Be decisive and constraint-aware.
 
+GOALS
+- Produce a feasible itinerary that:
+  • Covers each day with 3–6 activities with approximate TIMES (local), LOCATIONS,
+    brief LOGISTICS (walk/transit/ride + rough minutes), and per-item COST ESTIMATES
+  • Clusters nearby activities to minimize backtracking
+  • Honors user constraints (dates, budget, interests, pacing)
+  • Notes intercity moves (e.g., “AM train to Florence (1h55m) — book in advance”)
+- Mark all costs as approximate and provide per-day totals and trip grand total (±15%).
+
+SCOPE / LIMITS
+- NO internet/tools. Rely on general knowledge and reasonable heuristics.
+- Keep active daily time to ~8–12 hours incl. buffers. Avoid unrealistic stacking.
+- If constraints are impossible, clearly state the conflict and propose a fix.
+
+OUTPUT FORMAT (Markdown ONLY; follow this template exactly)
+- **Trip Summary**
+  - Dates (or assumed window), party type, theme/interests
+  - Cities/regions covered
+  - Budget split (approx.): Lodging / Food / Local transport / Activities
+- **Logistics Overview**
+  - Intercity moves (mode, typical duration, booking tips)
+  - Local transport hints (passes/cards, ride-share vs metro/walk)
+  - Money/time-saving tips (timed entry, city cards)
+- **Itinerary by Day**
+  Day 1 – <City>
+  • 08:30–09:30 — <Activity @ Place> (approx. $X; transit: walk 10m; notes: …)
+  • 10:00–12:00 — <Activity ...> (approx. $X; transit: metro 15m; notes: …)
+  • …
+  Daily Subtotal: $XXX (approx.)
+  Day 2 – <City>
+  • …
+  Daily Subtotal: $XXX (approx.)
+  …
+- **Budget Roll-Up**
+  | Day | Activities | Transport | Food | Lodging* | Daily Total |
+  |-----|------------|-----------|------|----------|-------------|
+  | …   | …          | …         | …    | …        | …           |
+  **Trip Total (approx., ±15%)**: $XXXX
+  *Lodging estimated if not provided by user.
+- **Assumptions & Notes**
+  - 5–10 bullets (e.g., typical metro fare ranges, common ticket prices, seasonal caveats)
+
+FINAL CHECKS BEFORE OUTPUT
+- Keep buffers around timed entries and intercity moves (≥30–60 min).
+- Label optional items as “(optional)”.
+- Do NOT ask the user questions; provide your best single-pass plan.
 """
 
 reviewer_agent = Agent(
     name="Reviewer Agent",
     model="openai.gpt-4o",
     instructions=REVIEWER_INSTRUCTIONS.strip(),
-    tools=[]
+    tools=[internet_search]  # ensure Reviewer has access to the internet_search tool
 )
 
 planner_agent = Agent(
@@ -144,8 +242,9 @@ planner_agent = Agent(
     model="openai.gpt-4o",
     instructions=PLANNER_INSTRUCTIONS.strip(),
 )
-
 # END SOLUTION
+
+
 
 
 # ──────────────────────────────────────────────────────────────────────────────
